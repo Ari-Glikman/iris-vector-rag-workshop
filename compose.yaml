@@ -1,0 +1,21 @@
+# IRIS Vector Search workshop - one container with everything inside.
+#   docker compose up -d       start
+#   docker compose down        stop (your work stays)
+#   docker compose down -v     stop and delete your work (next start is fresh)
+# Login: _SYSTEM / SYS
+name: vecworkshop
+
+services:
+  iris:
+    image: vecworkshop/iris:local
+    container_name: vecworkshop-iris
+    ports:
+      - "127.0.0.1:42773:52773"   # Management Portal + VS Code: http://127.0.0.1:42773/csp/sys/UtilHome.csp
+      - "127.0.0.1:48888:8888"    # Jupyter (Exercise 4): http://127.0.0.1:48888/?token=workshop
+      - "127.0.0.1:41972:1972"    # SQL clients (optional)
+    volumes:
+      - iris_data:/durable
+    stop_grace_period: 60s        # lets IRIS shut down cleanly
+
+volumes:
+  iris_data:
