@@ -49,9 +49,14 @@ if ($dockerOk) {
     }
 
     Write-Host "== The workshop container (the first time this downloads the image, several GB - be patient)" -ForegroundColor Cyan
-    docker compose up -d 2>&1 | ForEach-Object { "$_" }
+    $up = docker compose up -d 2>&1 | ForEach-Object { "$_" }
+    $up | ForEach-Object { Write-Host $_ }
     if ($LASTEXITCODE -ne 0) {
-        Fail "docker compose up -d" "see the message above"
+        if (($up -join " ") -match "(?i)denied|unauthorized|403") {
+            Fail "downloading the workshop image" "the image is private for now: run  docker login ghcr.io  (user = your GitHub name, password = a GitHub token with read:packages) and run check.ps1 again"
+        } else {
+            Fail "docker compose up -d" "see the message above"
+        }
     } else {
         $healthy = $false
         for ($i = 0; $i -lt 60; $i++) {
