@@ -53,7 +53,7 @@ if ($dockerOk) {
     $up | ForEach-Object { Write-Host $_ }
     if ($LASTEXITCODE -ne 0) {
         if (($up -join " ") -match "(?i)denied|unauthorized|403") {
-            Fail "downloading the workshop image" "the image is private for now: run  docker login ghcr.io  (user = your GitHub name, password = a GitHub token with read:packages) and run check.ps1 again"
+            Fail "downloading the workshop image" "the image ghcr.io/ari-glikman/iris-vector-rag-workshop could not be downloaded - if you are logged in to ghcr.io with an old token, run  docker logout ghcr.io  and run check.ps1 again; otherwise check VPN/proxy/firewall"
         } else {
             Fail "docker compose up -d" "see the message above"
         }
