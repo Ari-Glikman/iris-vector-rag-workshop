@@ -7,7 +7,7 @@ name: vecworkshop
 
 services:
   iris:
-    image: ghcr.io/ari-glikman/iris-vector-rag-workshop:2026-11-11
+    image: ghcr.io/ari-glikman/iris-vector-rag-workshop:2026-11-11.2
     container_name: vecworkshop-iris
     ports:
       - "127.0.0.1:42773:52773"   # Management Portal + VS Code: http://127.0.0.1:42773/csp/sys/UtilHome.csp
