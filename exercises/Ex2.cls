@@ -53,8 +53,8 @@ ClassMethod StoreChunk(id As %String, title As %String, source As %String, conte
     if SQLCODE < 0 { throw ##class(%Exception.SQL).CreateFromSQLCODE(SQLCODE, %msg) }
 }
 
-/// Steps 1-3 for one PDF. Returns the number of chunks stored.
-ClassMethod IngestPdf(path As %String) As %Integer
+/// Steps 1-3 for one PDF. Returns the number of chunks stored. show = 0: no list of stored chunks.
+ClassMethod IngestPdf(path As %String, show As %Boolean = 1) As %Integer
 {
     set source = ##class(%File).GetFilename(path)
     set handbook = $piece($piece($piece(source, "-handbook.pdf"), "-guide.pdf"), "-runbook.pdf")   // "backup-restore"
@@ -63,13 +63,13 @@ ClassMethod IngestPdf(path As %String) As %Integer
     set iter = sections.%GetIterator()
     while iter.%GetNext(.i, .section) {
         do ..StoreChunk(section.id, section.title, source, section.text)
-        write "   stored ", section.id, "  ", section.title, !
+        write:show "   stored ", section.id, "  ", section.title, !
     }
     return sections.%Size()
 }
 
-/// All four handbooks. Returns the number of chunks stored.
-ClassMethod IngestAll() As %Integer
+/// All four handbooks. Returns the number of chunks stored. show = 0: no list of stored chunks.
+ClassMethod IngestAll(show As %Boolean = 1) As %Integer
 {
     do ##class(Workshop.Util).Checkpoint(2)         // Exercise 1 done? (model downloaded and registered)
     if '##class(Workshop.Util).TableExists("SupportChunks") {
@@ -77,7 +77,7 @@ ClassMethod IngestAll() As %Integer
     }
     set n = 0
     for file = "accounts-handbook.pdf", "data-import-handbook.pdf", "vector-search-guide.pdf", "backup-restore-handbook.pdf" {
-        set n = n + ..IngestPdf(..#PDFDIR_"/"_file)
+        set n = n + ..IngestPdf(..#PDFDIR_"/"_file, show)
     }
     return n
 }
