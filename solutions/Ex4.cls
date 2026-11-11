@@ -2,7 +2,7 @@
 /// Prompt: data/prompts/system_prompt.txt. The notebook exercises/ex4_rag.ipynb does the same in Python and can call this class.
 /// The LLM is called from IRIS with %Net.HttpRequest; the API key: do ##class(Workshop.Util).SetKey("<workshop key>") first (or the notebook's first cell).
 /// <p>Run: <code>do ##class(Workshop.Exercise.Ex4).Run()</code></p>
-/// <p>TODO 4: Passage(). TODO 5: UnknownCitations(). Step by step in the terminal: Workshop Guide, Exercise 4 C.</p>
+/// <p>TODO 3: Passage(). TODO 4: UnknownCitations(). Step by step in the terminal: Workshop Guide, Exercise 4 C.</p>
 Class Workshop.Exercise.Ex4 Extends %RegisteredObject
 {
 
@@ -94,7 +94,7 @@ ClassMethod Run() As %Status
         set status = ##class(Workshop.Util).LlmStatus()
         write "LLM: ", status, !
 
-        write !, "== 1. Retrieval and context (TODO 4)", !
+        write !, "== 1. Retrieval and context (TODO 3)", !
         set r = ##class(Workshop.Util).Search("How long do we keep lab backups?", 3)
         write ..BuildContext(r.hits), !
 
@@ -107,7 +107,7 @@ ClassMethod Run() As %Status
             write "Retrieval parts passed; generation NOT tested (LLM not configured).", !
             return $$$OK
         }
-        write !, "== 3. Test it (TODO 5): read each answer next to its evidence", !
+        write !, "== 3. Test it (TODO 4): read each answer next to its evidence", !
         set answerable = ..Ask("How long do we keep lab backups?")
         set paraphrase = ..Ask("For how many days are the nightly snapshots of a lab environment retained?")
         set unsupported = ..Ask("What uptime percentage does the platform guarantee in its SLA?")

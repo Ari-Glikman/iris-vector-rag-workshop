@@ -1,6 +1,7 @@
 /// Exercise 3 - Does the index make vector search faster? (slides 15-17)
 /// Two tables with the same 100,000 vectors: Workshop.BenchExact (no index) and Workshop.BenchHNSW (an HNSW index).
 /// In the IRIS terminal (Workshop Guide, Exercise 3):
+/// TODO 2: the timing in Search().
 /// <pre>set q = ##class(Workshop.Exercise.Ex3).QueryVector(10)                          // a vector to search for
 /// write ##class(Workshop.Exercise.Ex3).Search("Workshop.BenchExact", q)            // ms per search, no index
 /// write ##class(Workshop.Exercise.Ex3).Search("Workshop.BenchHNSW", q)             // ms per search, with the index
@@ -16,9 +17,6 @@ ClassMethod QueryVector(n As %Integer = 10) As %Vector
     return vector
 }
 
-/// How often Search() runs the query; it returns the average, so one slow run does not decide.
-Parameter REPEATS = 10;
-
 /// The query: the 10 nearest vectors to q (dot product, best first) - the same SQL for both tables.
 ClassMethod Query(table As %String) As %SQL.Statement
 {
@@ -28,16 +26,13 @@ ClassMethod Query(table As %String) As %SQL.Statement
     return stmt
 }
 
-/// Run the search REPEATS times and return the average time in milliseconds - only the search itself is timed.
+/// Run the search 10 times and return the average time in milliseconds - only the search itself is timed
+/// (q is already a vector). Averaging over 10 runs means one slow run does not decide.
 ClassMethod Search(table As %String, q As %Vector) As %Double
 {
     set stmt = ..Query(table)
-    // TODO 3: Add "set t0 = $zhorolog" before the for loop, and replace return "" with: return ($zhorolog - t0) * 1000 / ..#REPEATS
-    for i = 1:1:..#REPEATS {
-        set rs = stmt.%Execute(q)
-        while rs.%Next() { }
-    }
-    return ""
+    // TODO 2: Paste these 6 lines (the timing): set t0 = $zhorolog / for i = 1:1:10 { set rs = stmt.%Execute(q)  while rs.%Next() { } } / return ($zhorolog - t0) * 1000 / 10 - see the Workshop Guide, Exercise 3 step 2
+    do ##class(Workshop.Util).Todo(2, "Paste these 6 lines (the timing): set t0 = $zhorolog / for i = 1:1:10 { set rs = stmt.%Execute(q)  while rs.%Next() { } } / return ($zhorolog - t0) * 1000 / 10 - see the Workshop Guide, Exercise 3 step 2")
 }
 
 /// The 10 vec_ids a table returns for q, best first.

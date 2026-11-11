@@ -38,7 +38,7 @@ out in the room.
 
 | Folder / file | What it is |
 |---|---|
-| `exercises/` | the files you work on: `Ex1.cls` ... `Ex4.cls`, the SQL files, the Exercise 4 notebook |
+| `exercises/` | the files you work on: `Ex1.cls` ... `Ex4.cls` and the Exercise 4 notebook (the SQL is in the guide) |
 | `solutions/` | the completed versions (same class names - paste if you fall behind) |
 | `data/` | the fictional handbook PDFs the exercises search |
 | `compose.yaml` | the workshop container (`docker compose up -d` / `down`) |

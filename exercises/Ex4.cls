@@ -2,7 +2,7 @@
 /// Prompt: data/prompts/system_prompt.txt. The notebook exercises/ex4_rag.ipynb does the same in Python and can call this class.
 /// The LLM is called from IRIS with %Net.HttpRequest; the API key: do ##class(Workshop.Util).SetKey("<workshop key>") first (or the notebook's first cell).
 /// <p>Run: <code>do ##class(Workshop.Exercise.Ex4).Run()</code></p>
-/// <p>TODO 4: Passage(). TODO 5: UnknownCitations(). Step by step in the terminal: Workshop Guide, Exercise 4 C.</p>
+/// <p>TODO 3: Passage(). TODO 4: UnknownCitations(). Step by step in the terminal: Workshop Guide, Exercise 4 C.</p>
 Class Workshop.Exercise.Ex4 Extends %RegisteredObject
 {
 
@@ -15,8 +15,8 @@ Class Workshop.Exercise.Ex4 Extends %RegisteredObject
 /// The chunk ID in brackets is what the LLM will cite.
 ClassMethod Passage(hit As %DynamicObject) As %String
 {
-    // TODO 4: Paste this line: return "["_hit.%Get("chunk_id")_"] "_hit.title_" (source: "_hit.source_")"_$char(10)_hit.content
-    do ##class(Workshop.Util).Todo(4, "Paste this line: return ""[""_hit.%Get(""chunk_id"")_""] ""_hit.title_"" (source: ""_hit.source_"")""_$char(10)_hit.content")
+    // TODO 3: Paste this line: return "["_hit.%Get("chunk_id")_"] "_hit.title_" (source: "_hit.source_")"_$char(10)_hit.content
+    do ##class(Workshop.Util).Todo(3, "Paste this line: return ""[""_hit.%Get(""chunk_id"")_""] ""_hit.title_"" (source: ""_hit.source_"")""_$char(10)_hit.content")
 }
 
 /// Step 2 - all passages, one block each, with a blank line between them (given).
@@ -38,8 +38,8 @@ ClassMethod UnknownCitations(reply As %DynamicObject, hits As %DynamicArray) As 
     }
     set unknown = [], iter = reply.%Get("cited_chunk_ids").%GetIterator()
     while iter.%GetNext(.i, .cited) {
-        // TODO 5: Paste this line: if '$listfind(retrieved, cited) { do unknown.%Push(cited) }
-        do ##class(Workshop.Util).Todo(5, "Paste this line: if '$listfind(retrieved, cited) { do unknown.%Push(cited) }")
+        // TODO 4: Paste this line: if '$listfind(retrieved, cited) { do unknown.%Push(cited) }
+        do ##class(Workshop.Util).Todo(4, "Paste this line: if '$listfind(retrieved, cited) { do unknown.%Push(cited) }")
     }
     return unknown
 }
@@ -96,7 +96,7 @@ ClassMethod Run() As %Status
         set status = ##class(Workshop.Util).LlmStatus()
         write "LLM: ", status, !
 
-        write !, "== 1. Retrieval and context (TODO 4)", !
+        write !, "== 1. Retrieval and context (TODO 3)", !
         set r = ##class(Workshop.Util).Search("How long do we keep lab backups?", 3)
         write ..BuildContext(r.hits), !
 
@@ -109,7 +109,7 @@ ClassMethod Run() As %Status
             write "Retrieval parts passed; generation NOT tested (LLM not configured).", !
             return $$$OK
         }
-        write !, "== 3. Test it (TODO 5): read each answer next to its evidence", !
+        write !, "== 3. Test it (TODO 4): read each answer next to its evidence", !
         set answerable = ..Ask("How long do we keep lab backups?")
         set paraphrase = ..Ask("For how many days are the nightly snapshots of a lab environment retained?")
         set unsupported = ..Ask("What uptime percentage does the platform guarantee in its SLA?")
