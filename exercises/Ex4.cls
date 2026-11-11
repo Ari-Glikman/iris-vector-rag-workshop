@@ -2,25 +2,62 @@
 /// Prompt: data/prompts/system_prompt.txt. The notebook exercises/ex4_rag.ipynb does the same in Python and can call this class.
 /// The LLM is called from IRIS with %Net.HttpRequest; the API key: do ##class(Workshop.Util).SetKey("<workshop key>") first (or the notebook's first cell).
 /// <p>Run: <code>do ##class(Workshop.Exercise.Ex4).Run()</code></p>
-/// <p>TODO 4: BuildContext(). TODO 5: Ask().</p>
+/// <p>TODO 4: Passage(). TODO 5: UnknownCitations(). Step by step in the terminal: Workshop Guide, Exercise 4 C.</p>
 Class Workshop.Exercise.Ex4 Extends %RegisteredObject
 {
 
-/// One block per retrieved passage, separated by a blank line:
-/// <pre>[vector-search §1] title (source: vector-search-guide.pdf)
-/// passage text</pre>
+/// Step 2 - one retrieved passage as text for the LLM. A hit looks like this (try it in the terminal, Guide Exercise 4 C):
+/// <pre>{"chunk_id":"backup-restore §2", "title":"Backup schedule and retention", "source":"backup-restore-handbook.pdf",
+///  "content":"Every environment is backed up automatically each night...", "score":0.79}</pre>
+/// and becomes
+/// <pre>[backup-restore §2] Backup schedule and retention (source: backup-restore-handbook.pdf)
+/// Every environment is backed up automatically each night...</pre>
 /// The chunk ID in brackets is what the LLM will cite.
-ClassMethod BuildContext(hits As %DynamicArray) As %String
+ClassMethod Passage(hit As %DynamicObject) As %String
 {
-    // TODO 4: Iterate hits with hits.%GetIterator(); for each hit h build "["_h.%Get("chunk_id")_"] "_h.title_" (source: "_h.source_")"_$CHAR(10)_h.content and join the blocks with $CHAR(10,10).
-    do ##class(Workshop.Util).Todo(4, "Iterate hits with hits.%GetIterator(); for each hit h build ""[""_h.%Get(""chunk_id"")_""] ""_h.title_"" (source: ""_h.source_"")""_$CHAR(10)_h.content and join the blocks with $CHAR(10,10).")
+    // TODO 4: Paste this line: return "["_hit.%Get("chunk_id")_"] "_hit.title_" (source: "_hit.source_")"_$char(10)_hit.content
+    do ##class(Workshop.Util).Todo(4, "Paste this line: return ""[""_hit.%Get(""chunk_id"")_""] ""_hit.title_"" (source: ""_hit.source_"")""_$char(10)_hit.content")
 }
 
-/// Retrieve first, then generate. Returns {question, retrieval, reply, unknown_citations}.
+/// Step 2 - all passages, one block each, with a blank line between them (given).
+ClassMethod BuildContext(hits As %DynamicArray) As %String
+{
+    set text = "", iter = hits.%GetIterator()
+    while iter.%GetNext(.i, .hit) {
+        set text = text_$select(text = "": "", 1: $char(10, 10))_..Passage(hit)
+    }
+    return text
+}
+
+/// Step 5 - which chunk IDs did the LLM cite that were NOT among the retrieved passages? (should be none)
+ClassMethod UnknownCitations(reply As %DynamicObject, hits As %DynamicArray) As %DynamicArray
+{
+    set retrieved = "", iter = hits.%GetIterator()
+    while iter.%GetNext(.i, .hit) {
+        set retrieved = retrieved_$listbuild(hit.%Get("chunk_id"))       // the IDs we gave the LLM
+    }
+    set unknown = [], iter = reply.%Get("cited_chunk_ids").%GetIterator()
+    while iter.%GetNext(.i, .cited) {
+        // TODO 5: Paste this line: if '$listfind(retrieved, cited) { do unknown.%Push(cited) }
+        do ##class(Workshop.Util).Todo(5, "Paste this line: if '$listfind(retrieved, cited) { do unknown.%Push(cited) }")
+    }
+    return unknown
+}
+
+/// The whole pipeline: 1. retrieve, 2. context, 3. message, 4. ask the LLM, 5. check the citations.
+/// Returns {question, retrieval, reply, unknown_citations}.
 ClassMethod Ask(question As %String, k As %Integer = 3, minScore As %String = "", show As %Boolean = 1) As %DynamicObject
 {
-    // TODO 5: 1) retrieval = ##class(Workshop.Util).Search(question, k, minScore)  2) userMsg = "Passages:"+2 newlines+BuildContext(retrieval.hits)+2 newlines+"Question: "+question  3) reply = ##class(Workshop.Util).Complete(##class(Workshop.Util).SystemPrompt(), userMsg)  4) unknown = cited IDs that were not retrieved.
-    do ##class(Workshop.Util).Todo(5, "1) retrieval = ##class(Workshop.Util).Search(question, k, minScore)  2) userMsg = ""Passages:""+2 newlines+BuildContext(retrieval.hits)+2 newlines+""Question: ""+question  3) reply = ##class(Workshop.Util).Complete(##class(Workshop.Util).SystemPrompt(), userMsg)  4) unknown = cited IDs that were not retrieved.")
+    set retrieval = ##class(Workshop.Util).Search(question, k, minScore)                       // 1. retrieve: the top-k chunks
+    set context = ..BuildContext(retrieval.hits)                                               // 2. the passages as text
+    set userMsg = "Passages:"_$char(10, 10)_$select(context = "": "(no passages retrieved)", 1: context)_$char(10, 10)_"Question: "_question   // 3. the message
+    set reply = ##class(Workshop.Util).Complete(##class(Workshop.Util).SystemPrompt(), userMsg)  // 4. the LLM answers (JSON)
+    set result = {"question": (question), "retrieval": (retrieval), "reply": (reply),
+                  "unknown_citations": (..UnknownCitations(reply, retrieval.hits))}              // 5. check the citations
+    if show {
+        do ..Show(result)
+    }
+    return result
 }
 
 /// Print the answer next to its evidence.
@@ -87,7 +124,7 @@ ClassMethod Run() As %Status
 
         // Success check
         set a = answerable.reply, u = unsupported.reply, b = before.reply, f = after.reply
-        do ##class(Workshop.Util).Assert(..BuildContext(r.hits) [ "[backup-restore §2]", "BuildContext should contain [chunk_id] markers")
+        do ##class(Workshop.Util).Assert(..BuildContext(r.hits) [ "[backup-restore §2]", "Passage() should start with the [chunk_id]")
         do ##class(Workshop.Util).Assert(a.%Get("sufficient_evidence") && (a.answer [ "14"), "answerable question should say 14 days")
         do ##class(Workshop.Util).Assert(a.%Get("cited_chunk_ids").%ToJSON() [ "backup-restore §2", "answerable question should cite backup-restore §2")
         do ##class(Workshop.Util).Assert('u.%Get("sufficient_evidence") && (u.%Get("cited_chunk_ids").%Size() = 0), "unsupported question should cite nothing")
